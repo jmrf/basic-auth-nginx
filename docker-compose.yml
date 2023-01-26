@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+
+  # ---------------------------------------------------------
+  # --------------- External Services & Tools ---------------
+  # ---------------------------------------------------------
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    networks:
+      - auth_test
+    ports:
+      - "443:443"
+      - "8080:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - server
+
+  server:
+    image: python:3.9.16-slim
+    restart: always
+    networks:
+      - auth_test
+    volumes:
+      - $PWD:/home:ro
+    command: python /home/basic_server.py
+
+
+networks:
+  auth_test:
+    name: auth_test
