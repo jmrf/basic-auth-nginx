@@ -29,7 +29,7 @@ def run_server(port):
                       <p><button>Submit</button></p>
                       <p><button>Gemme OUT!</button></p>
                     </form>
-                    <pre>Auth data: {self.decode_auth()} </pre>
+                    <pre>Auth data: {self.decode_x_auth()} </pre>
                     </body></html>
                 """.encode(
                     "utf-8"
@@ -53,8 +53,6 @@ def run_server(port):
             field_data = self.rfile.read(length)
             fields = parse.parse_qs(str(field_data, "UTF-8"))
 
-
-
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -64,7 +62,7 @@ def run_server(port):
                     <html><head><title>POST</title></head>
                     <body style="display: grid; place-items: center;">
                     <pre>{json.dumps(fields, indent=2)}</pre>
-                    <pre>Auth data: {self.decode_auth()} </pre>
+                    <pre>Auth data: {self.decode_x_auth()} </pre>
                     </body></html>
                   """
                 ).encode("UTF-8")
@@ -76,6 +74,12 @@ def run_server(port):
             if auth_data:
                 return base64.b64decode(auth_data.encode("ascii").decode("utf-8")).decode("utf-8")
             return "No Auth Data"
+
+        def decode_x_auth(self):
+            """Retrieves the 'X-Auth-Request-User' header wich nginx should have set
+            based on the logged in user from the Basic Auth header
+            """
+            return self.headers.get("X-Auth-Request-User", "").strip()
 
 
     handler_class = Server
